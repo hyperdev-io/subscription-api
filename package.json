@@ -1,0 +1,28 @@
+{
+  "name": "client-dashboard",
+  "version": "1.0.0",
+  "description": "managing subscription for clients",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "debug": "nodemon --inspect ./server.js",
+    "build": "next build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cross-env": "^5.2.0",
+    "express": "^4.16.4",
+    "express-validator": "^5.3.1",
+    "js-yaml": "^3.13.0",
+    "next": "^8.0.3",
+    "node-fetch": "^2.3.0",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
+}
