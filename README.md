@@ -1,7 +1,22 @@
 # Client dashboard
 
 !!! Should be subscription.yml file inside client project at Github.com.
-Also you should put the file with %API_KEY% name (this variable used in user-management. can be any string.)  to github repo in project folder near to subscription.yml
+Example:
+```
+workers: 5
+build-slaves: 4
+users: 3
+diskspace: 500MB 
+```
+
+Also you should put the api-key variable inside vars.yml (this variable used in user-management. can be any string.)
+Example:
+```
+user_portal:
+  api_key: vvsmnsdf-werfds-ewrfds-qweeq-dssdf
+```
+
+
 ## Env variables
 ```
 GITHUB_OWNER=%GITHUB_OWNER%;

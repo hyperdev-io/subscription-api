@@ -30,19 +30,28 @@ app.prepare()
                 res.status(200).send(obj);
             }
 
-            function onApiKeyFetched() {
-                fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/subscription.yml`, {
-                    method: 'GET',
-                    headers: {
-                        'User-Agent': 'client-dashboard',
-                        'Accept': 'application/vnd.github.v3.raw',
-                        'Authorization': `token ${AUTH_TOKEN}`
-                    }
-                }).then(handleErrors)
-                    .then(res => res.text().then(data => onFulfilled(data)))
-                    .catch(response => {
-                        response.json().then(error => onRejected(error))
+            function onApiKeyFetched(data, api_key) {
+                let obj = yaml.load(data);
+
+                if (obj.user_portal.api_key===api_key){
+                    fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/subscription.yml`, {
+                        method: 'GET',
+                        headers: {
+                            'User-Agent': 'client-dashboard',
+                            'Accept': 'application/vnd.github.v3.raw',
+                            'Authorization': `token ${AUTH_TOKEN}`
+                        }
+                    }).then(handleErrors)
+                        .then(res => res.text().then(data => onFulfilled(data)))
+                        .catch(response => {
+                            response.json().then(error => onRejected(error))
+                        });
+                } else {
+                    res.status(500).send({
+                        error: 'Wrong api-key',
+                        message: 'Wrong api-key'
                     });
+                }
             }
 
             function onRejected(err) {
@@ -61,7 +70,7 @@ app.prepare()
             let PROJECT_NAME = req.query.project;
             let API_KEY = req.query.api_key;
 
-            fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/${API_KEY}`, {
+            fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/vars.yml`, {
                 method: 'GET',
                 headers: {
                     'User-Agent': 'client-dashboard',
@@ -69,7 +78,7 @@ app.prepare()
                     'Authorization': `token ${AUTH_TOKEN}`
                 }
             }).then(handleErrors)
-                .then(res => res.text().then(onApiKeyFetched))
+                .then(res => res.text().then(data => onApiKeyFetched(data, API_KEY)))
                 .catch(response => {
                     response.json().then(error => onApiKeyRejected(error))
                 });
