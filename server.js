@@ -37,7 +37,7 @@ app.prepare()
                     fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/subscription.yml`, {
                         method: 'GET',
                         headers: {
-                            'User-Agent': 'client-dashboard',
+                            'User-Agent': 'subscription-api',
                             'Accept': 'application/vnd.github.v3.raw',
                             'Authorization': `token ${AUTH_TOKEN}`
                         }
@@ -73,7 +73,7 @@ app.prepare()
             fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/vars.yml`, {
                 method: 'GET',
                 headers: {
-                    'User-Agent': 'client-dashboard',
+                    'User-Agent': 'subscription-api',
                     'Accept': 'application/vnd.github.v3.raw',
                     'Authorization': `token ${AUTH_TOKEN}`
                 }

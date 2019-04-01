@@ -1,4 +1,4 @@
-# Client dashboard
+# Subscription API
 
 !!! Should be subscription.yml file inside client project at Github.com.
 Example:

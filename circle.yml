@@ -1,0 +1,42 @@
+machine:
+  node:
+    version: 9.0.0
+  services:
+    - docker
+
+dependencies:
+  override:
+    - npm i
+    - npm run build
+    - docker build -t bigboat/subscription-api .
+
+# test:
+#   override:
+#     - npm test
+
+deployment:
+  master:
+    branch: master
+    commands:
+      - docker tag bigboat/subscription-api bigboat/subscription-api:development
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push bigboat/subscription-api:development
+
+  tags:
+    tag: /^[0-9]+\.[0-9]+\.[0-9]+$/
+    commands:
+      - docker tag bigboat/subscription-api bigboat/subscription-api:${CIRCLE_TAG}
+      - MAJOR_VERSION=${CIRCLE_TAG/.*}; docker tag bigboat/subscription-api:${CIRCLE_TAG} bigboato/subscription-api:${MAJOR_VERSION}
+      - MINOR_VERSION=${CIRCLE_TAG%.*}; docker tag bigboat/subscription-api:${CIRCLE_TAG} bigboat/subscription-api:${MINOR_VERSION}
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push bigboat/subscription-api
+      - docker push bigboat/subscription-api:${CIRCLE_TAG}
+      - docker push bigboat/subscription-api:${MINOR_VERSION}
+      - docker push bigboat/subscription-api:${MAJOR_VERSION}
+
+  features:
+    branch: /^feature.*$/
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker tag bigboat/subscription-api:latest bigboat/subscription-api:${CIRCLE_BRANCH}
+      - docker push bigboat/subscription-api:${CIRCLE_BRANCH}

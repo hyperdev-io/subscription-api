@@ -1,6 +1,6 @@
 const Index = () => (
     <div>
-        <p>client-dashboard</p>
+        <p>subscription-api</p>
     </div>
 )
 

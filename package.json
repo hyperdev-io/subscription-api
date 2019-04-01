@@ -1,5 +1,5 @@
 {
-  "name": "client-dashboard",
+  "name": "subscription-api",
   "version": "1.0.0",
   "description": "managing subscription for clients",
   "main": "index.js",
