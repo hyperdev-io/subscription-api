@@ -4,8 +4,7 @@ ADD . /app
 
 WORKDIR /app
 
-RUN npm i \
-    && npm run build
+RUN npm i
 
 
 CMD [ "npm", "start" ]
