@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  subscription-api:
+    environment:
+      GITHUB_OWNER: hyperdev-io
+      AUTH_TOKEN: <take it from readme.md>
+      ENV: test
+      GITHUB_REPO: clients
+      BRANCH_NAME: feature-user-portal

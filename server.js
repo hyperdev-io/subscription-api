@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const yaml = require('js-yaml');
 
-const {GITHUB_OWNER, GITHUB_REPO, AUTH_TOKEN} = process.env;
+const {GITHUB_OWNER, GITHUB_REPO, AUTH_TOKEN, BRANCH_NAME} = process.env;
 
 function handleErrors(response) {
     if (!response.ok) {
@@ -26,7 +26,11 @@ server.get('/api/config', function (req, res) {
         let obj = yaml.load(data);
 
         if (obj.user_portal.api_key === api_key) {
-            fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/subscription.yml`, {
+            var ref_param='';
+            if(BRANCH_NAME){
+                ref_param='?ref='+BRANCH_NAME;
+            }
+            fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/subscription.yml${ref_param}`, {
                 method: 'GET',
                 headers: {
                     'User-Agent': 'subscription-api',
@@ -62,8 +66,11 @@ server.get('/api/config', function (req, res) {
 
     let PROJECT_NAME = req.query.project;
     let API_KEY = req.query.api_key;
-
-    fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/vars.yml`, {
+    var ref_param='';
+    if(BRANCH_NAME){
+        ref_param='?ref='+BRANCH_NAME;
+    }
+    fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/vars.yml${ref_param}`, {
         method: 'GET',
         headers: {
             'User-Agent': 'subscription-api',
