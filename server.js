@@ -87,7 +87,7 @@ server.get('/api/config', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err
+            message: 'Settings fetch error - ' + err
         });
     }
 
@@ -102,7 +102,7 @@ server.get('/api/users', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err
+            message: 'Settings fetch error - ' + err
         });
     }
 
@@ -127,7 +127,7 @@ server.get('/api/workers', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err
+            message: 'Settings fetch error - ' + err
         });
     }
 
@@ -146,7 +146,7 @@ server.post('/api/workers', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err.message
+            message: 'Settings fetch error - ' + err.message
         });
     }
 
@@ -164,7 +164,7 @@ server.get('/api/build-slaves', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err
+            message: 'Settings fetch error - ' + err
         });
     }
 
@@ -183,7 +183,7 @@ server.post('/api/build_slaves', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err.message
+            message: 'Settings fetch error - ' + err.message
         });
     }
 
