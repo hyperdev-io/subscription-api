@@ -35,14 +35,22 @@ function fetchFromFile(req, fileName) {
                 let obj = yaml.load(data);
 
                 if (obj.user_portal.api_key === API_KEY) {
-                    resolve(fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/${FILE_NAME}${ref_param}`, {
+                    fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/${FILE_NAME}${ref_param}`, {
                         method: 'GET',
                         headers: {
                             'User-Agent': 'subscription-api',
                             'Accept': 'application/vnd.github.v3.raw',
                             'Authorization': `token ${AUTH_TOKEN}`
                         }
-                    }));
+                    }).then(handleErrors)
+                        .then(res => res.text().then(data => {
+                            resolve(data)
+                        })).catch(response => {
+                            console.error(response);
+                            response.json().then(error => {
+                                reject('Settings fetch error - ' + error.message)
+                            })
+                        });
                 } else {
                     reject('Wrong api-key')
                 }
@@ -50,6 +58,7 @@ function fetchFromFile(req, fileName) {
 
             }))
             .catch(response => {
+                console.error(response);
                 response.json().then(error => {
                     reject('Api-key error - ' + error.message)
                 })
@@ -69,16 +78,16 @@ server.get('/api/config', function (req, res) {
     }
 
 
-    fetchFromFile(req, 'subscription.yml').then(handleErrors)
-        .then(res => res.text().then(data => onFulfilled(data)))
-        .catch(response => {
-            response.json().then(error => onRejected(error))
+    fetchFromFile(req, 'subscription.yml')
+        .then(data => onFulfilled(data))
+        .catch(error => {
+            onRejected(error)
         });
 
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err.message
+            error: 'Settings fetch error - ' + err
         });
     }
 
@@ -93,14 +102,14 @@ server.get('/api/users', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err.message
+            error: 'Settings fetch error - ' + err
         });
     }
 
-    fetchFromFile(req, 'hosts').then(handleErrors)
-        .then(res => res.text().then(data => onFulfilled(data)))
-        .catch(response => {
-            response.json().then(error => onRejected(error))
+    fetchFromFile(req, 'hosts')
+        .then(data => onFulfilled(data))
+        .catch(error => {
+            onRejected(error)
         });
 
 });
@@ -118,14 +127,14 @@ server.get('/api/workers', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err.message
+            error: 'Settings fetch error - ' + err
         });
     }
 
-    fetchFromFile(req, 'hosts').then(handleErrors)
-        .then(res => res.text().then(data => onFulfilled(data)))
-        .catch(response => {
-            response.json().then(error => onRejected(error))
+    fetchFromFile(req, 'hosts')
+        .then(data => onFulfilled(data))
+        .catch(error => {
+             onRejected(error)
         });
 
 });
@@ -155,14 +164,14 @@ server.get('/api/build-slaves', function (req, res) {
 
     function onRejected(err) {
         res.status(500).send({
-            error: 'Settings fetch error - ' + err.message
+            error: 'Settings fetch error - ' + err
         });
     }
 
-    fetchFromFile(req, 'hosts').then(handleErrors)
-        .then(res => res.text().then(data => onFulfilled(data)))
-        .catch(response => {
-            response.json().then(error => onRejected(error))
+    fetchFromFile(req, 'hosts')
+        .then(data => onFulfilled(data))
+        .catch(error => {
+            onRejected(error)
         });
 
 });
