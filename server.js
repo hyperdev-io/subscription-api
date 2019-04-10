@@ -34,7 +34,7 @@ function fetchFromFile(req, fileName) {
             .then(res => res.text().then(data => {
                 let obj = yaml.load(data);
 
-                if (obj.user_portal.api_key === API_KEY) {
+                if (obj.project_portal.api_key === API_KEY) {
                     fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PROJECT_NAME}/${FILE_NAME}${ref_param}`, {
                         method: 'GET',
                         headers: {
