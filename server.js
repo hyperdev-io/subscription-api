@@ -72,18 +72,42 @@ server.use(bodyParser.urlencoded({extended: true}));
 server.use(bodyParser.json());
 
 server.get('/api/config', function (req, res) {
-    function onFulfilled(data) {
+    let result = {};
+
+    function onFulfilledSubscription(data) {
         let obj = yaml.load(data);
-        res.status(200).send(obj);
+        result.users = obj.users;
+    }
+    function onFulfilledHosts(data) {
+        let obj = yaml.load(data);
+
+        let workers=[];
+        for (worker in obj.all.children.workers.hosts) {
+            workers.push({name:worker});
+        }
+        result.workers = workers;
+
+        let build_slaves=[];
+        for (build_slave in obj.all.children['build-slaves'].hosts) {
+            build_slaves.push({name:build_slave});
+        }
+        result.build_slaves = build_slaves;
+
+        res.status(200).send(result);
     }
 
 
     fetchFromFile(req, 'subscription.yml')
-        .then(data => onFulfilled(data))
+        .then(data => onFulfilledSubscription(data)).then(()=>{
+        fetchFromFile(req, 'hosts')
+            .then(data => onFulfilledHosts(data))
+            .catch(error => {
+                onRejected(error)
+            });
+    })
         .catch(error => {
             onRejected(error)
         });
-
 
     function onRejected(err) {
         res.status(500).send({
