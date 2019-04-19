@@ -88,7 +88,7 @@ server.get('/api/config', function (req, res) {
         result.workers = workers;
 
         let build_slaves=[];
-        for (build_slave in obj.all.children['build-slaves'].hosts) {
+        for (build_slave in obj.all.children.build_slaves.hosts) {
             build_slaves.push({name:build_slave});
         }
         result.build_slaves = build_slaves;
@@ -180,7 +180,7 @@ server.get('/api/build-slaves', function (req, res) {
     function onFulfilled(data) {
         let obj = yaml.load(data);
         let build_slaves={build_slaves:[]};
-        for (build_slave in obj.all.children['build-slaves'].hosts) {
+        for (build_slave in obj.all.children.build_slaves.hosts) {
             build_slaves.build_slaves.push({name:build_slave});
         }
         res.status(200).send(build_slaves);
