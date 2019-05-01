@@ -1,7 +1,13 @@
 # Subscription API
 
-!!! Should be subscription.yml file inside client project at Github.com.
-Example:
+###Dev
+set ENV=dev only
+
+###Test/Prod
+
+!!! Should be subscription.yml and hosts files inside client project at Github.com.
+<br/>
+subscription.yml:
 ```
 workers: 5
 build-slaves: 4
@@ -9,7 +15,8 @@ users: 3
 diskspace: 500MB 
 ```
 
-Also you should put the api-key variable inside vars.yml (this variable used in user-management. can be any string.)
+
+Also you should put the api-key variable inside vars.yml (this variable used in project-management. can be any string.)
 Example:
 ```
 user_portal:
@@ -22,7 +29,7 @@ user_portal:
 GITHUB_OWNER=%GITHUB_OWNER%;
 GITHUB_REPO=%GITHUB_REPO%;
 AUTH_TOKEN=%AUTH_TOKEN%;
-ENV=dev;
+ENV=test;
 BRANCH_NAME=master
 ```
 

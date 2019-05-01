@@ -1,0 +1,105 @@
+all:
+  children:
+    managers:
+      hosts:
+        manager:
+          ansible_host:
+          hostname: manager
+          private_ip: "{{ network.hosts.manager }}"
+          lvm_volumes:
+            - vg_name: vg1
+              lv_name: lv1
+              disks:
+                - device: vda
+                  partition: 3
+              filesystem: ext4
+              mount: /var/lib/docker
+              create_partition: True
+    workers:
+      hosts:
+        worker-4:
+          ansible_host:
+          hostname: worker-4
+          private_ip:
+          lvm_volumes:
+            - vg_name: vg1
+              lv_name: lv1
+              disks:
+                - device: vda
+                  partition: 3
+              filesystem: ext4
+              mount: /var/lib/docker
+              create_partition: True
+        worker-5:
+          ansible_host:
+          hostname: worker-5
+          private_ip:
+          lvm_volumes:
+            - vg_name: vg1
+              lv_name: lv1
+              disks:
+                - device: vda
+                  partition: 3
+              filesystem: ext4
+              mount: /var/lib/docker
+              create_partition: True
+        worker-6:
+          ansible_host:
+          hostname: worker-6
+          private_ip:
+          lvm_volumes:
+            - vg_name: vg1
+              lv_name: lv1
+              disks:
+                - device: vda
+                  partition: 3
+              filesystem: ext4
+              mount: /var/lib/docker
+              create_partition: True
+    nfs:
+      hosts:
+        nfs:
+          ansible_host:
+          hostname: nfs
+          private_ip: "{{ network.hosts.nfs }}"
+          lvm_volumes:
+            - vg_name: vg1
+              lv_name: lv1
+              disks:
+                - device: vda
+                  partition: 3
+              filesystem: ext4
+              mount: /shared/data
+              create_partition: True
+    build_slaves:
+      hosts:
+        build-slave-1:
+          ansible_host:
+          hostname: build-slave-1
+          private_ip: "{{ network.hosts.build_slave }}"
+          lvm_volumes:
+            - vg_name: vg1
+              lv_name: lv1
+              disks:
+                - device: vda
+                  partition: 3
+              filesystem: ext4
+              mount: /var/lib/docker
+              create_partition: True
+      vars:
+        ssh_user_name: "{{ build_slave.ssh_user_name }}"
+        ssh_user_pass: "{{ build_slave.ssh_user_pass }}"
+        vpn_server:
+        vpn_user_name: "{{ build_slave.vpn_username }}"
+  vars:
+    public_node_ip:
+    private_node_ip: 127.0.0.1
+    network:
+      hosts:
+        manager: 192.168.1.1
+        nfs: 192.168.1.5
+        mqtt: 192.168.1.1
+        docker_registry: 192.168.1.1
+        build_slave: 192.168.1.8
+    ansible_ssh_user: core
+    ansible_python_interpreter: /usr/bin/env python
