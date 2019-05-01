@@ -39,12 +39,27 @@ server.get('/api/config', function (req, res) {
             workers.push({name: worker});
         }
         result.workers = workers;
+        result.workers_memory = workers.length * 16
 
         let build_slaves = [];
         for (build_slave in obj.all.children.build_slaves.hosts) {
             build_slaves.push({name: build_slave});
         }
         result.build_slaves = build_slaves;
+
+        let lvm_volumes = [];
+        result.diskspace = 0;
+
+        obj.all.children.nfs.hosts.nfs.lvm_volumes.forEach((value, index) => {
+            lvm_volumes.push({name: value.lv_name});
+            let memory = 100;
+            if (index === 0) {
+                memory = 200;
+            }
+            result.diskspace = result.diskspace + memory
+        });
+        result.lvm_volumes = lvm_volumes;
+
 
         res.status(200).send(result);
     }

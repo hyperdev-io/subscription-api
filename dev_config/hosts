@@ -71,6 +71,14 @@ all:
               filesystem: ext4
               mount: /shared/data
               create_partition: True
+            - vg_name: vg2
+              lv_name: lv2
+              disks:
+                - device: vda
+                  partition: 3
+              filesystem: ext4
+              mount: /shared/data
+              create_partition: True
     build_slaves:
       hosts:
         build-slave-1:
