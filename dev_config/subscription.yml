@@ -2,3 +2,8 @@ workers: 5
 build-slaves: 4
 users: 15
 diskspace: 500MB
+
+moneybird:
+  # Eonics' contact_id
+  contact_id: 211786024202798994
+  reference: Observ

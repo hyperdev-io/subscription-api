@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const yaml = require('js-yaml');
 const Fetch = require('./fetch.js');
 const DevFetch = require('./devFetch.js');
+const {getInvoices, getContactData} = require('./moneybird');
 
 const {ENV} = process.env;
 
@@ -129,6 +130,24 @@ server.get('/api/workers', function (req, res) {
             onRejected(error)
         });
 
+});
+
+server.get('/api/invoices', async function (req, res) {
+    const {moneybird} = yaml.load(await fetch.fetchFromFile(req, 'subscription.yml'))
+
+    console.log('Fetching invoice data from moneybird: ', moneybird)
+    const invoices = await getInvoices(moneybird.contact_id, moneybird.reference);
+
+    res.status(200).send(invoices);
+});
+
+server.get('/api/invoice_contact', async function (req, res) {
+
+    const {moneybird} = yaml.load(await fetch.fetchFromFile(req, 'subscription.yml'))
+    console.log('Fetching contact data from moneybird')
+    const contact_data = await getContactData(moneybird.contact_id);
+
+    res.status(200).send(contact_data);
 });
 
 server.post('/api/workers', function (req, res) {
