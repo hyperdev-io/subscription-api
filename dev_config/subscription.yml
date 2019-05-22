@@ -5,5 +5,5 @@ diskspace: 500MB
 
 moneybird:
   # Eonics' contact_id
-  contact_id: 211786024202798994
+  contact_id: '211786024202798994'
   reference: Observ
