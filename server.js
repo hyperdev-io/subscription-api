@@ -134,6 +134,18 @@ server.get('/api/workers', function (req, res) {
 
 });
 
+server.get('/api/can_view_invoices', async function (req, res) {
+
+    try {
+        const {moneybird} = await loadSubscriptionFile(req)
+        if (moneybird.contact_id && moneybird.reference) {
+            res.status(200).send({message: true});
+        }
+    } catch (err) {
+        res.status(200).send({message: false});
+    }
+});
+
 server.get('/api/invoices', async function (req, res) {
     const {moneybird} = await loadSubscriptionFile(req)
 
