@@ -18,7 +18,8 @@
     "js-yaml": "^3.13.0",
     "jsonwebtoken": "^8.5.0",
     "node-fetch": "^2.3.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "superagent": "^5.0.5"
   },
   "devDependencies": {
     "nodemon": "^1.18.10"

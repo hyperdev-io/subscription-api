@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const yaml = require('js-yaml');
 const Fetch = require('./fetch.js');
 const DevFetch = require('./devFetch.js');
+const {getInvoices, getContactData} = require('./moneybird');
 
 const {ENV} = process.env;
 
@@ -22,6 +23,8 @@ switch (ENV) {
         break;
 }
 
+const loadSubscriptionFile = async (req) =>
+    yaml.load(await fetch.fetchFromFile(req, 'subscription.yml'))
 
 server.get('/api/config', function (req, res) {
     let result = {};
@@ -129,6 +132,42 @@ server.get('/api/workers', function (req, res) {
             onRejected(error)
         });
 
+});
+
+server.get('/api/can_view_invoices', async function (req, res) {
+
+    try {
+        const {moneybird} = await loadSubscriptionFile(req)
+        if (moneybird.contact_id && moneybird.reference) {
+            res.status(200).send({message: true});
+        }
+    } catch (err) {
+        res.status(200).send({message: false});
+    }
+});
+
+server.get('/api/invoices', async function (req, res) {
+    const {moneybird} = await loadSubscriptionFile(req)
+
+    console.log('Fetching invoice data from moneybird')
+    try {
+        const invoices = await getInvoices(moneybird.contact_id, moneybird.reference);
+        res.status(200).send(invoices);
+    } catch (err) {
+        res.status(500).send({message: "Error fetching invoices, is the configuration available?"});
+    }
+});
+
+server.get('/api/invoice_contact', async function (req, res) {
+
+    const {moneybird} = await loadSubscriptionFile(req)
+    console.log('Fetching contact data from moneybird')
+    try {
+        const contact_data = await getContactData(moneybird.contact_id);
+        res.status(200).send(contact_data);
+    } catch (err) {
+        res.status(500).send({message: "Error fetching invoice contact, is the configuration available?"});
+    }
 });
 
 server.post('/api/workers', function (req, res) {
