@@ -19,3 +19,13 @@ exports.getInvoices = async (contactId, reference = null) => {
 
     return invoices_request.body.filter( invoice => invoice.reference == reference )
 }
+
+exports.getInvoice = async (contactId, id) => {
+
+    const invoices_request = await SuperAgent
+        .get(`https://moneybird.com/api/v2/${MONEYBIRD_ADMINISTRATION_ID}/sales_invoices/${id}`)
+        .set('Authorization', `Bearer ${MONEYBIRD_API_TOKEN}`)
+        .set('Accept', 'application/json')
+
+    return invoices_request.body
+}

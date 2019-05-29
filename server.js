@@ -3,8 +3,8 @@ const bodyParser = require('body-parser');
 const yaml = require('js-yaml');
 const Fetch = require('./fetch.js');
 const DevFetch = require('./devFetch.js');
-const {getInvoices, getContactData} = require('./moneybird');
-
+const {getInvoice, getInvoices, getContactData} = require('./moneybird');
+const {parse} = require('url');
 const {ENV} = process.env;
 
 const server = express();
@@ -143,6 +143,21 @@ server.get('/api/can_view_invoices', async function (req, res) {
         }
     } catch (err) {
         res.status(200).send({message: false});
+    }
+});
+
+server.get('/api/invoice_by_id', async function (req, res) {
+    const {moneybird} = await loadSubscriptionFile(req)
+
+    const {query} = parse(req.url, true);
+
+    console.log('Fetching invoice datum from moneybird')
+
+    try {
+        const invoice = await getInvoice(moneybird.contact_id, query.id);
+        res.status(200).send(invoice);
+    } catch (err) {
+        res.status(500).send({message: "Error fetching invoice, is the configuration available and the id valid?"});
     }
 });
 
