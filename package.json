@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@mollie/api-client": "^2.3.2",
     "body-parser": "^1.18.3",
     "cross-env": "^5.2.0",
     "express": "^4.16.4",
@@ -17,6 +18,8 @@
     "fs": "0.0.1-security",
     "js-yaml": "^3.13.0",
     "jsonwebtoken": "^8.5.0",
+    "lodash": "^4.17.11",
+    "nedb": "^1.8.0",
     "node-fetch": "^2.3.0",
     "path": "^0.12.7",
     "superagent": "^5.0.5"

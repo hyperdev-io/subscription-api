@@ -6,10 +6,13 @@ const DevFetch = require('./devFetch.js');
 const {getInvoice, getInvoices, getContactData} = require('./moneybird');
 const {parse} = require('url');
 const {ENV} = process.env;
+const {keyBy} = require('lodash');
+const {getPaymentData, createPaymentData} = require('./payment');
 
 const server = express();
 server.use(bodyParser.urlencoded({extended: true}));
 server.use(bodyParser.json());
+
 
 var fetch;
 switch (ENV) {
@@ -147,40 +150,67 @@ server.get('/api/can_view_invoices', async function (req, res) {
 });
 
 server.get('/api/invoice_by_id', async function (req, res) {
-    const {moneybird} = await loadSubscriptionFile(req)
 
-    const {query} = parse(req.url, true);
-
-    console.log('Fetching invoice datum from moneybird')
 
     try {
-        const invoice = await getInvoice(moneybird.contact_id, query.id);
+        const {query} = parse(req.url, true);
+        const invoice = await getInvoice(req, query.id);
+
         res.status(200).send(invoice);
     } catch (err) {
         res.status(500).send({message: "Error fetching invoice, is the configuration available and the id valid?"});
     }
 });
 
-server.get('/api/invoices', async function (req, res) {
-    const {moneybird} = await loadSubscriptionFile(req)
 
-    console.log('Fetching invoice data from moneybird')
+server.get('/api/invoice_payment', async function (req, res) {
+
+    let invoice, payment;
+
     try {
-        const invoices = await getInvoices(moneybird.contact_id, moneybird.reference);
+        const {query} = parse(req.url, true);
+        const paymentData = await getPaymentData(query.invoice_id);
+
+        if (paymentData == null) {
+            console.log("CREATING PAYMENT")
+            invoice = await getInvoice(req, query.invoice_id);
+            payment = await createPaymentData(invoice);
+
+        } else {
+            console.log("PAYMENT EXISTS")
+            invoice = paymentData.invoice;
+            payment = paymentData.payment;
+        }
+
+        //console.log("INV: ", invoice)
+        console.log("PAY: ", payment)
+
+
+        res.status(200).send({invoice, payment_status: payment.status, payment_url: payment.getPaymentUrl()});
+    } catch (err) {
+        console.log(err)
+        res.status(500).send({message: "Error fetching invoice, is the configuration available and the id valid?"});
+    }
+});
+
+server.get('/api/invoices', async function (req, res) {
+
+    try {
+        const invoices = await getInvoices(req);
         res.status(200).send(invoices);
     } catch (err) {
+        console.error(err)
         res.status(500).send({message: "Error fetching invoices, is the configuration available?"});
     }
 });
 
 server.get('/api/invoice_contact', async function (req, res) {
 
-    const {moneybird} = await loadSubscriptionFile(req)
-    console.log('Fetching contact data from moneybird')
     try {
-        const contact_data = await getContactData(moneybird.contact_id);
+        const contact_data = await getContactData(req);
         res.status(200).send(contact_data);
     } catch (err) {
+        console.error(err)
         res.status(500).send({message: "Error fetching invoice contact, is the configuration available?"});
     }
 });
