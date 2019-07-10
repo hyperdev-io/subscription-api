@@ -7,7 +7,7 @@ const {getInvoice, getInvoices, getContactData} = require('./moneybird');
 const {parse} = require('url');
 const {ENV} = process.env;
 const {keyBy} = require('lodash');
-const {getPaymentData, createPaymentData} = require('./payment');
+const {getPaymentData, createPaymentData, getPaymentForInvoice} = require('./payment');
 
 const server = express();
 server.use(bodyParser.urlencoded({extended: true}));
@@ -165,31 +165,21 @@ server.get('/api/invoice_by_id', async function (req, res) {
 
 server.get('/api/invoice_payment', async function (req, res) {
 
-    let invoice, payment;
-
     try {
         const {query} = parse(req.url, true);
-        const paymentData = await getPaymentData(query.invoice_id);
-
-        if (paymentData == null) {
-            console.log("CREATING PAYMENT")
-            invoice = await getInvoice(req, query.invoice_id);
-            payment = await createPaymentData(invoice);
-
-        } else {
-            console.log("PAYMENT EXISTS")
-            invoice = paymentData.invoice;
-            payment = paymentData.payment;
-        }
-
+        console.log("getting payment for invoice ", query.invoice_id)
+        //const paymentData = await getPaymentData(query.invoice_id).catch(null);
+        const invoice = await getInvoice(req, query.invoice_id);
+        const payment = await getPaymentForInvoice(invoice).catch(null);
         //console.log("INV: ", invoice)
         console.log("PAY: ", payment)
+        console.log("URL: ", payment.getPaymentUrl())
 
 
         res.status(200).send({invoice, payment_status: payment.status, payment_url: payment.getPaymentUrl()});
     } catch (err) {
         console.log(err)
-        res.status(500).send({message: "Error fetching invoice, is the configuration available and the id valid?"});
+        res.status(500).send({message: "Error fetching payment, is the configuration available and the id valid?"});
     }
 });
 

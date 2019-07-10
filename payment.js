@@ -4,14 +4,17 @@ const mollie_client = require('@mollie/api-client')({ apiKey: MOLLIE_KEY });
 const {createDB} = require('./db');
 const payment_database = createDB('mollie_db')
 
+// invoice: object with invoice data (straight from moneybird)
+// payment: object with payment data (straight from mollie)
+// invoice_payment: object used with the local DB: {_id: invoice.id, payment_id: payment.id}
 
-exports.createPaymentData = (invoice) => new Promise(async (resolve, reject) => {
+const createPaymentData = (invoice) => new Promise(async (resolve, reject) => {
 
     try {
 
-        const payment = createPaymentForInvoice(invoice);
-        const data = {_id: invoice.id, invoice, payment};
-        await payment_database.insert(data, (err, docs) => {
+        const payment = await createPaymentForInvoice(invoice);
+        const invoice_payment = {_id: invoice.id, payment_id: payment.id};
+        await payment_database.insert(invoice_payment, (err, docs) => {
             if (err) {
                 reject(err);
             } 
@@ -46,7 +49,7 @@ const createPaymentForInvoice = (invoice) => new Promise ( async (resolve, rejec
                 currency: invoice.currency,
             },
             description: "MY first payment",
-            redirectUrl: `http://dashboard.hyperdev.local:8081/_portal/pay?invoice_id=${invoice.id}`,
+            redirectUrl: `http://dashboard.hyperdev.local:8081/portal/invoices?payment_invoice_id=${invoice.id}`,
         });
         resolve(payment);
     } catch (err) {
@@ -56,65 +59,60 @@ const createPaymentForInvoice = (invoice) => new Promise ( async (resolve, rejec
 });
 
 
-const renewPayment = (invoiceId) => new Promise ( async (resolve, reject) => {
-    let paymentData = await getPaymentFromDB(invoiceId);
-    let newPayment = await createPaymentForInvoice(paymentData.invoice);
-
-    payment_database.update({_id: invoice.id}, {payment: newPayment}, {}, (err, numAffected, affectedDocument) => {
-        if (err) {
-            reject(err);
-        }
-        resolve(newPayment);
-    })
-
-});
-
-
-exports.getPaymentData = (invoiceId) => new Promise( async (resolve, reject) => {
-    let paymentData = await getPaymentFromDB(invoiceId);
-
-    if (paymentData != null) {
-        var updatedPayment = await getPaymentUpdate(paymentData.payment.id);
-
-        // transparantly renew payment
-        if (updatedPayment.status == 'expired') {
-            updatedPayment = await renewPayment(invoiceId);
-        }
-
-        paymentData = {...paymentData, payment: updatedPayment};
-        await updatePaymentData(invoiceId, paymentData);
-    }
-
-    resolve(paymentData);
-});
 
 
 const getPaymentUpdate = (payment_id) => mollie_client.payments.get(payment_id)
 
 
 const getPaymentFromDB = (invoiceId) => new Promise( (resolve, reject) => {
-    payment_database.findOne({_id: invoiceId}, (err, docs) => {
+    console.log("looking for invoice: ", invoiceId)
+    payment_database.findOne({_id: invoiceId}, (err, invoice_payment) => {
         if (err) {
+            console.log("Did not find invoice: ", err)
             reject(err);
         }
-        resolve(docs);
+        console.log("found invoice: ", invoice_payment)
+        resolve(invoice_payment);
     });
 });
 
 
-updatePaymentData = (invoiceId, update) => new Promise( async (resolve, reject) => {
 
-    try {
-        payment_database.update({_id: invoiceId}, update, {returnUpdatedDocs: true}, (err, numAffected, affectedDocument) => {
-            if (err) {
-                reject(err);
+exports.getPaymentForInvoice = (invoice) => new Promise( async (resolve, reject) => {
+
+    // look in DB for invoice_payment
+    let paymentData = await getPaymentFromDB(invoice.id).catch(null);
+    console.log("PAYMENTDATA: ", paymentData);
+
+
+    const payment = await (async () => { 
+        if (paymentData === null) {
+            // no previous payment exists
+            return await createPaymentData(invoice);
+        } else {
+            // a previous payment exists, so we check it's status
+            const {payment_id} = paymentData;
+            const payment_update =await getPaymentUpdate(payment_id);
+            if (payment_update.status == 'expired') {
+                console.log("EXPIRED")
+                // Renew payment
+            } else {
+                return payment_update;
             }
-            resolve(affectedDocument);
-        });
+        }
+    })()
 
-    } catch (err) {
-        console.log(err);
-        reject(Error(`No payment exists for invoice ${invoiceId}`))
-    }
 
+    /*let payment;
+    if (paymentData !== null) {
+        const {payment_id} = paymentData;
+        console.log("payment exists: ", payment_id)
+        payment = await getPaymentUpdate(payment_id);
+    } else {
+        console.log("payment not found")
+        payment = await createPaymentData(invoice);
+    }*/
+    console.log("PAYMENT: ", payment);
+
+    resolve(payment)
 });
