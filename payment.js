@@ -1,4 +1,4 @@
-const MOLLIE_KEY = 'test_axc6jebk6tphaEhDPGeNS6uvxwwv87';
+const {MOLLIE_KEY} = process.env;
 const mollie_client = require('@mollie/api-client')({ apiKey: MOLLIE_KEY });
 
 const {createDB} = require('./db');
@@ -6,7 +6,8 @@ const payment_database = createDB('mollie_db')
 
 // invoice: object with invoice data (straight from moneybird)
 // payment: object with payment data (straight from mollie)
-// invoice_payment: object used with the local DB: {_id: invoice.id, payment_id: payment.id}
+// invoice_payment: object used with the local DB, essentially a join table: {_id: invoice.id, payment_id: payment.id}
+// TODO: this currently only allows for one payment per invoice.
 
 const createPaymentData = (invoice) => new Promise(async (resolve, reject) => {
 
@@ -39,7 +40,7 @@ const createPaymentForInvoice = (invoice) => new Promise ( async (resolve, rejec
     }
 
     if (value == '0.00' && MOLLIE_KEY.startsWith('test_')) {
-        value = '10.00';
+        value = '13.37';
     }
 
     try {
@@ -48,7 +49,8 @@ const createPaymentForInvoice = (invoice) => new Promise ( async (resolve, rejec
                 value,
                 currency: invoice.currency,
             },
-            description: "MY first payment",
+            // Mollie also uses the  description in e.g. bank statements, so we put the payment reference here for moneybird to pick-up later
+            description: `${invoice.payment_reference} HyperDev invoice ${invoice.invoice_id}`,
             redirectUrl: `http://dashboard.hyperdev.local:8081/portal/invoices?payment_invoice_id=${invoice.id}`,
         });
         resolve(payment);
