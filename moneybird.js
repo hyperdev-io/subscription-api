@@ -6,7 +6,7 @@ const Fetch = require('./fetch.js');
 const DevFetch = require('./devFetch.js');
 const yaml = require('js-yaml');
 
-const use_cache = true;
+const use_cache = false;
 
 var fetch;
 switch (ENV) {
