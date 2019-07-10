@@ -168,12 +168,9 @@ server.get('/api/invoice_payment', async function (req, res) {
     try {
         const {query} = parse(req.url, true);
         console.log("getting payment for invoice ", query.invoice_id)
-        //const paymentData = await getPaymentData(query.invoice_id).catch(null);
+
         const invoice = await getInvoice(req, query.invoice_id);
         const payment = await getPaymentForInvoice(invoice).catch(null);
-        //console.log("INV: ", invoice)
-        console.log("PAY: ", payment)
-        console.log("URL: ", payment.getPaymentUrl())
 
 
         res.status(200).send({invoice, payment_status: payment.status, payment_url: payment.getPaymentUrl()});
