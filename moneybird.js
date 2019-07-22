@@ -50,15 +50,15 @@ getReference = async (req) => {
 }
 
 exports.getContactData = async (req) => {
-    
+
     const projectName = getProjectName(req);
 
     if (use_cache && projectName in moneybird_contact_data_cache) {
-        console.log("Using cached contact data for moneybird");
+        console.debug("Using cached contact data for moneybird");
         return moneybird_contact_data_cache[projectName];
 
     } else {
-        console.log('Fetching contact data from moneybird');
+        console.debug('Fetching contact data from moneybird');
         const contactId = await getContactId(req);
         const contact_request = await SuperAgent
             .get(`https://moneybird.com/api/v2/${MONEYBIRD_ADMINISTRATION_ID}/contacts/${contactId}`)
@@ -76,7 +76,7 @@ exports.getInvoices = async (req) => {
     const projectName = getProjectName(req);
 
     if (!(use_cache && projectName in moneybird_invoices_cache)) {
-        console.log('Fetching invoice data from moneybird');
+        console.debug('Fetching invoice data from moneybird');
         const contactId = await getContactId(req);
         const invoices_request = await SuperAgent
             .get(`https://moneybird.com/api/v2/${MONEYBIRD_ADMINISTRATION_ID}/sales_invoices?filter=contact_id:${contactId}`)
@@ -87,7 +87,7 @@ exports.getInvoices = async (req) => {
         moneybird_invoices_index[projectName] = keyBy(invoices_request.body, (invoice) => invoice.id )
 
     } else {
-        console.log("Using cached invoice data for moneybird");
+        console.debug("Using cached invoice data for moneybird");
     }
 
     const reference = await getReference(req);
@@ -100,11 +100,11 @@ exports.getInvoice = async (req, invoiceId) => {
 
     if (use_cache && projectName in moneybird_invoices_index) {
         if (invoiceId in moneybird_invoices_index[projectName]) {
-            console.log(`Using cached invoice datum for moneybird; ${invoiceId}`);
+            console.debug(`Using cached invoice datum for moneybird; ${invoiceId}`);
             return moneybird_invoices_index[projectName][invoiceId];
         }
     } else {
-        console.log(`Fetching invoice datum from moneybird: ${invoiceId}`);
+        console.debug(`Fetching invoice datum from moneybird: ${invoiceId}`);
 
         if (!(projectName in moneybird_invoices_index)) {
             moneybird_invoices_index[projectName] = {};
