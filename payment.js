@@ -78,6 +78,20 @@ const getPaymentFromDB = (invoiceId) => new Promise( (resolve, reject) => {
     });
 });
 
+const removePaymentFromDB = (invoiceId) => new Promise( (resolve, reject) => {
+    console.debug("looking for invoice: ", invoiceId)
+    payment_database.remove({_id: invoiceId}, {multi: false}, (err, numRemoved) => {
+        if (err) {
+            console.debug("Did not remove invoice payment: ", err)
+        }
+        if (numRemoved === 1) {
+            console.debug("removed invoice payment: ", invoiceId)
+            resolve();
+        } else {
+            reject(`Did not delete invoice ${invoiceId}`);
+        }
+    });
+});
 
 
 exports.getPaymentForInvoice = (invoice) => new Promise( async (resolve, reject) => {
@@ -86,17 +100,19 @@ exports.getPaymentForInvoice = (invoice) => new Promise( async (resolve, reject)
     let paymentData = await getPaymentFromDB(invoice.id).catch(null);
 
 
-    const payment = await (async () => { 
+    const payment = await (async () => {
         if (paymentData === null) {
             // no previous payment exists
             return await createPaymentData(invoice);
         } else {
             // a previous payment exists, so we check it's status
             const {payment_id} = paymentData;
-            const payment_update =await getPaymentUpdate(payment_id);
+            const payment_update = await getPaymentUpdate(payment_id);
             if (payment_update.status == 'expired') {
-                console.debug("payment is expired")
-                // Renew payment
+                console.debug("payment is expired");
+                // Payment is expired, so we create a new one.
+                await removePaymentFromDB(invoice.id);
+                return await createPaymentData(invoice);
             } else {
                 return payment_update;
             }
