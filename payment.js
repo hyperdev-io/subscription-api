@@ -55,7 +55,7 @@ const createPaymentForInvoice = (invoice) => new Promise ( async (resolve, rejec
         });
         resolve(payment);
     } catch (err) {
-        console.log(err)
+        console.debug(err)
         reject(Error("Could not create payment with payment provider"));
     }
 });
@@ -67,13 +67,13 @@ const getPaymentUpdate = (payment_id) => mollie_client.payments.get(payment_id)
 
 
 const getPaymentFromDB = (invoiceId) => new Promise( (resolve, reject) => {
-    console.log("looking for invoice: ", invoiceId)
+    console.debug("looking for invoice: ", invoiceId)
     payment_database.findOne({_id: invoiceId}, (err, invoice_payment) => {
         if (err) {
-            console.log("Did not find invoice: ", err)
+            console.debug("Did not find invoice payment: ", err)
             reject(err);
         }
-        console.log("found invoice: ", invoice_payment)
+        console.debug("found invoice payment: ", invoice_payment)
         resolve(invoice_payment);
     });
 });
@@ -84,7 +84,6 @@ exports.getPaymentForInvoice = (invoice) => new Promise( async (resolve, reject)
 
     // look in DB for invoice_payment
     let paymentData = await getPaymentFromDB(invoice.id).catch(null);
-    console.log("PAYMENTDATA: ", paymentData);
 
 
     const payment = await (async () => { 
@@ -96,7 +95,7 @@ exports.getPaymentForInvoice = (invoice) => new Promise( async (resolve, reject)
             const {payment_id} = paymentData;
             const payment_update =await getPaymentUpdate(payment_id);
             if (payment_update.status == 'expired') {
-                console.log("EXPIRED")
+                console.debug("payment is expired")
                 // Renew payment
             } else {
                 return payment_update;
@@ -104,17 +103,6 @@ exports.getPaymentForInvoice = (invoice) => new Promise( async (resolve, reject)
         }
     })()
 
-
-    /*let payment;
-    if (paymentData !== null) {
-        const {payment_id} = paymentData;
-        console.log("payment exists: ", payment_id)
-        payment = await getPaymentUpdate(payment_id);
-    } else {
-        console.log("payment not found")
-        payment = await createPaymentData(invoice);
-    }*/
-    console.log("PAYMENT: ", payment);
 
     resolve(payment)
 });
