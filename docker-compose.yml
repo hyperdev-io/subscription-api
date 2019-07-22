@@ -8,3 +8,4 @@ services:
       ENV: test
       GITHUB_REPO: clients
       BRANCH_NAME: feature-user-portal
+      MOLLIE_KEY: 'test_axc6jebk6tphaEhDPGeNS6uvxwwv87'
