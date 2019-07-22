@@ -39,10 +39,6 @@ const createPaymentForInvoice = (invoice) => new Promise ( async (resolve, rejec
         value = invoice.total_unpaid;
     }
 
-    if (value == '0.00' && MOLLIE_KEY.startsWith('test_')) {
-        value = '13.37';
-    }
-
     try {
         const payment = await mollie_client.payments.create({
             amount: {
